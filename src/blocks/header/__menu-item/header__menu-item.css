@@ -1,0 +1,19 @@
+.header__menu-item {
+  background-color: transparent;
+  border: none;
+  color: inherit;
+  text-decoration: none;
+
+  transition: opacity 0.3s;
+
+  padding: 0;
+  margin: 0;
+}
+
+.header__menu-item:is(button) {
+  cursor: pointer;
+}
+
+.header__menu-item:is(button):hover {
+  opacity: 0.6;
+}
