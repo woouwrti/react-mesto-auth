@@ -1,6 +1,5 @@
 import React from "react";
 import Card from "./Card";
-import Header from "./Header";
 import CurrentUserContext from "../contexts/CurrentUserContext";
 
 export default function Main({
@@ -18,13 +17,6 @@ export default function Main({
 
   return (
     <main>
-      {/* <Header isWrappable={true}>
-        <p className="header__menu-item">{email}</p>
-        <button href="#" className="header__menu-item" onClick={onLogout}>
-          Выйти
-        </button>
-      </Header> */}
-
       <section className="profile">
         <div className="profile__avatar">
           <img

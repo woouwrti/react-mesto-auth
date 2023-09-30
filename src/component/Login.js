@@ -1,17 +1,14 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Header from "./Header";
-import auth from "../utils/auth";
 
-function Login({ handleShowInfoMessage, onLogin }) {
+function Login({ onLogin }) {
   const defaultValues = {
     email: "",
     password: "",
   };
 
   const [inputs, setInputs] = React.useState(defaultValues);
-
-  const navigate = useNavigate();
 
   function handleChange(event) {
     const value = event.target.value;
@@ -21,21 +18,7 @@ function Login({ handleShowInfoMessage, onLogin }) {
 
   function handleSubmit(event) {
     event.preventDefault();
-    auth
-      .authorize(inputs)
-      .then(res => {
-        if (res.token) localStorage.setItem('token', res.token);
-        resetForm();
-        onLogin();
-        navigate("/");
-      })
-      .catch((err) => {
-        const text = err.message || "Что-то пошло не так! Попробуйте еще раз.";
-        handleShowInfoMessage({
-          text: text,
-          isSuccess: false,
-        });
-      });
+    onLogin(inputs).then(res => { if (res) resetForm() })
   }
 
   function resetForm() {
@@ -53,7 +36,7 @@ function Login({ handleShowInfoMessage, onLogin }) {
       <main>
         <div className="login">
           <h2 className="login__title">Вход</h2>
-          <form className="login__form" onSubmit={handleSubmit} noValidate>
+          <form className="login__form" onSubmit={handleSubmit}>
             <input
               type="email"
               className="login__input"
@@ -72,7 +55,7 @@ function Login({ handleShowInfoMessage, onLogin }) {
               onChange={handleChange}
               required
             />
-            <button rype="submit" className="login__submit-button">
+            <button type="submit" className="login__submit-button">
               Войти
             </button>
           </form>

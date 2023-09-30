@@ -40,16 +40,25 @@ export default function App() {
   const [currentUser, setCurrentUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
 
+  const [infoMessage, setInfoMessage] = React.useState(null);
+
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [email, setEmail] = React.useState("");
+
+  const navigate = useNavigate();
+
   React.useEffect(() => {
-    api
-      .getUserInfo()
-      .then(setCurrentUser)
-      .catch(console.error);
-    api
-      .getInitialCards()
-      .then(setCards)
-      .catch(console.error);
-  }, []);
+    if (isLoggedIn) {
+      api
+        .getUserInfo()
+        .then(setCurrentUser)
+        .catch(console.error);
+      api
+        .getInitialCards()
+        .then(setCards)
+        .catch(console.error);
+    }
+  }, [isLoggedIn]);
 
   function handleEditAvatarClick() {
     setIsEditAvatarPopupOpen(true);
@@ -161,21 +170,43 @@ export default function App() {
     handleSubmit(makeRequest);
   }
 
-  const [infoMessage, setInfoMessage] = React.useState(null);
-
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-  const [email, setEmail] = React.useState("");
-
-  const navigate = useNavigate();
-
-  // console.log(isLoggedIn)
-
-  function handleShowInfoMessage(message) {
-    setInfoMessage(message);
+  async function handleLogin(inputs) {
+    return auth
+      .authorize(inputs)
+      .then(res => {
+        if (res.token) localStorage.setItem('token', res.token);
+        setEmail(inputs.email);
+        setIsLoggedIn(true);
+        navigate("/");
+        return true
+      })
+      .catch((err) => {
+        const text = err.message || "Что-то пошло не так! Попробуйте еще раз.";
+        setInfoMessage({
+          text: text,
+          isSuccess: false,
+        });
+      });
   }
 
-  function handleLogin() {
-    setIsLoggedIn(true);
+  async function handleRegister(inputs) {
+    return auth
+      .register(inputs)
+      .then((res) => {
+        setInfoMessage({
+          text: "Вы успешно зарегистрировались!",
+          isSuccess: true,
+        });
+        navigate("/sign-in");
+        return true
+      })
+      .catch((err) => {
+        const text = err.message || "Что-то пошло не так! Попробуйте еще раз.";
+        setInfoMessage({
+          text: text,
+          isSuccess: false,
+        });
+      });
   }
 
   function handleLogout() {
@@ -189,13 +220,13 @@ export default function App() {
       auth
         .checkToken(token)
         .then((res) => {
-          setEmail(res.data.email);
+          setEmail(res.data.email)
           setIsLoggedIn(true);
           navigate("/");
         })
         .catch(console.error);
     }
-  }, [navigate]);
+  }, []);
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
@@ -260,13 +291,12 @@ export default function App() {
             />
             <Route
               path="/sign-up"
-              element={<Register handleShowInfoMessage={handleShowInfoMessage} />}
+              element={<Register onRegister={handleRegister} />}
             />
             <Route
               path="/sign-in"
               element={
                 <Login
-                  handleShowInfoMessage={handleShowInfoMessage}
                   onLogin={handleLogin}
                 />
               }
